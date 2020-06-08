@@ -6,6 +6,7 @@ import (
     "time"
     "io/ioutil"
     "net/http"
+    _ "github.com/mattn/go-sqlite3"
     gojsonq "github.com/thedevsaddam/gojsonq/v2"
 )
 
@@ -21,10 +22,11 @@ type serverMap map[string]PGMMatch
 func managePGMServers(){
     PGMServers := make(serverMap)
     // Future: fill map with all PGM servers specified in config
-    ocn := PGMMatch{mapName: "Not Pinged Yet", duration: -1}
-    PGMServers["play.oc.tc"] = ocn
+    curServer := PGMMatch{mapName: "Not Pinged Yet", duration: -1}
+    PGMServers["play.oc.tc"] = curServer
     for {
         PGMServers.pollPGMServers()
+        // Future: make ping rate configurable
         time.Sleep(30 * time.Second)
     }
 }
@@ -35,6 +37,13 @@ func (PGMServers serverMap) pollPGMServers() {
         prevDuration := prevMatch.duration
         curMapName, curDuration := pollPGMServerByIP(server)
         if prevMapName != curMapName {
+            sendMessages(curMapName)
+            if !existsMap(curMapName) {
+                addMap(curMapName)
+                if DEBUG {
+                    fmt.Printf("> New map %s added to the database.", curMapName)
+                }
+            }
             if DEBUG {
                 if prevMapName != "Not Pinged Yet" {
                     fmt.Printf("\n> IP %s has cycled, last ping for %s was %d.\n",server,prevMapName,prevDuration)
@@ -75,7 +84,7 @@ func pollPGMServerByIP(curIP string) (mapName string, duration int) {
             lookForMatch += 1
             if lookForMatch > 200 {
                 // Normally PGM servers don't even get as high as 100 matches before restarting, so this prevents infinite loops in case no match is detected.
-                // Convert to pull from config file.
+                // Future: make the threshold configurable.
                 break
             }
         } else {
