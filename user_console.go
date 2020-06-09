@@ -9,6 +9,7 @@ import (
 
 func manageUserConsole(stopping chan bool) {
     scanner := bufio.NewScanner(os.Stdin)
+    printConsoleInput()
     for scanner.Scan() {
         userCommand := scanner.Text()
         parseCommand(userCommand, stopping)

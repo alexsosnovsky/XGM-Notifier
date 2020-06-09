@@ -21,10 +21,7 @@ func createBot() (*discordgo.Session){
     if err != nil {
         panic(err)
     }
-    if DEBUG {
-        fmt.Printf("Discord session opened.\n")
-    }
-
+    fmt.Printf("> Discord session opened.\n")
     return discord
 }
 

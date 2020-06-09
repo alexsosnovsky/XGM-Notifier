@@ -12,9 +12,7 @@ func openDB() (*sql.DB){
         panic(err)
     }
 
-    if DEBUG {
-        fmt.Println("> Database opened.")
-    }
+    fmt.Println("> Database opened.")
 
     statement, err := database.Prepare("CREATE TABLE IF NOT EXISTS maps (mapname TEXT)")
     if(err != nil) {
