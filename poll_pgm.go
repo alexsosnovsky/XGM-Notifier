@@ -12,27 +12,27 @@ import (
 
 const API_LINK = "https://eu.mc-api.net/v3/server/ping/"
 
-type PGMMatch struct {
+type pgmMatch struct {
     mapName string
     duration int
 }
 
-type serverMap map[string]PGMMatch
+type serverMap map[string]pgmMatch
 
 func managePGMServers(){
-    PGMServers := make(serverMap)
-    // Future: fill map with all PGM servers specified in config
-    curServer := PGMMatch{mapName: "Not Pinged Yet", duration: -1}
-    PGMServers["play.oc.tc"] = curServer
+    pgmServers := make(serverMap)
+    // Future: fill map with all pgm servers specified in config
+    curServer := pgmMatch{mapName: "Not Pinged Yet", duration: -1}
+    pgmServers["play.oc.tc"] = curServer
     for {
-        PGMServers.pollPGMServers()
+        pgmServers.pollPGMServers()
         // Future: make ping rate configurable
         time.Sleep(30 * time.Second)
     }
 }
 
-func (PGMServers serverMap) pollPGMServers() {
-    for server, prevMatch := range PGMServers {
+func (pgmServers serverMap) pollPGMServers() {
+    for server, prevMatch := range pgmServers {
         prevMapName := prevMatch.mapName
         prevDuration := prevMatch.duration
         curMapName, curDuration := pollPGMServerByIP(server)
@@ -56,8 +56,8 @@ func (PGMServers serverMap) pollPGMServers() {
             fmt.Printf("\n> IP %s has been playing %s for %d seconds.\n",server,curMapName,curDuration)
             printConsoleInput()
         }
-        newMatch := PGMMatch{mapName: curMapName, duration: curDuration}
-        PGMServers[server] = newMatch
+        newMatch := pgmMatch{mapName: curMapName, duration: curDuration}
+        pgmServers[server] = newMatch
     }
 }
 
@@ -79,11 +79,11 @@ func pollPGMServerByIP(curIP string) (mapName string, duration int) {
 
     for !matchFound {
         matchString := "bukkit_extra.pgm." + strconv.Itoa(lookForMatch)
-        curPGMData := gojsonq.New().JSONString(string(body)).Find(matchString)
-        if curPGMData == nil {
+        curpgmData := gojsonq.New().JSONString(string(body)).Find(matchString)
+        if curpgmData == nil {
             lookForMatch += 1
             if lookForMatch > 200 {
-                // Normally PGM servers don't even get as high as 100 matches before restarting, so this prevents infinite loops in case no match is detected.
+                // Normally pgm servers don't even get as high as 100 matches before restarting, so this prevents infinite loops in case no match is detected.
                 // Future: make the threshold configurable.
                 break
             }
