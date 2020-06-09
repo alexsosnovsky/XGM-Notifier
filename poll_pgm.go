@@ -65,11 +65,11 @@ func pollPGMServerByIP(curIP string) (mapName string, duration int) {
     res, err := http.Get(API_LINK + curIP)
     defer res.Body.Close()
     if err != nil {
-    	panic(err)
+        panic(err)
     }
     body, err := ioutil.ReadAll(res.Body)
     if err != nil {
-    	panic(err)
+        panic(err)
     }
 
     matchFound := false
@@ -92,21 +92,21 @@ func pollPGMServerByIP(curIP string) (mapName string, duration int) {
 
             mapNameData, err := gojsonq.New().JSONString(string(body)).FindR(matchString+".map.name")
             if err != nil {
-            	panic(err)
+                panic(err)
             }
             curMapName, err := mapNameData.String()
             if err != nil {
-            	panic(err)
+                panic(err)
             }
             mapName = curMapName
 
             durationData, err := gojsonq.New().JSONString(string(body)).FindR(matchString+".duration")
             if err != nil {
-            	panic(err)
+                panic(err)
             }
             curDuration, err := durationData.Float64()
             if err != nil {
-            	panic(err)
+                panic(err)
             }
             duration = int(curDuration)
         }

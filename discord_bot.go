@@ -10,12 +10,12 @@ import (
 func createBot() (*discordgo.Session){
     token, err := ioutil.ReadFile("bot_token.txt")
     if err != nil {
-		panic(err)
-	}
+        panic(err)
+    }
     discord, err := discordgo.New("Bot " + string(token))
-	if err != nil {
-		panic(err)
-	}
+    if err != nil {
+        panic(err)
+    }
     discord.AddHandler(messageCreate)
     err = discord.Open()
     if err != nil {
@@ -35,18 +35,18 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
     }
 
     // Ignore messages sent by this bot.
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
+    if m.Author.ID == s.State.User.ID {
+        return
+    }
 
     // Ignore non-private messages.
     channel, err := s.State.Channel(m.ChannelID)
-	if err != nil {
-		channel, err = s.Channel(m.ChannelID)
+    if err != nil {
+        channel, err = s.Channel(m.ChannelID)
         if err != nil {
             panic(err)
         }
-	}
+    }
     if channel.Type != discordgo.ChannelTypeDM {
         return
     }
@@ -90,7 +90,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
             response = command + " is not a recognized command."
     }
 
-	s.ChannelMessageSend(m.ChannelID, response)
+    s.ChannelMessageSend(m.ChannelID, response)
 }
 
 func sendMessages(mapName string){
