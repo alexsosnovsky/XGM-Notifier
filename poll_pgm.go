@@ -35,33 +35,37 @@ func (pgmServers serverMap) pollPGMServers() {
     for server, prevMatch := range pgmServers {
         prevMapName := prevMatch.mapName
         prevDuration := prevMatch.duration
-        curMapName, curDuration := pollPGMServerByIP(server)
-        if prevMapName != curMapName {
-            sendMessages(curMapName)
-            if !existsMap(curMapName) {
-                addMap(curMapName)
+        matchFound, curMapName, curDuration := pollPGMServerByIP(server)
+        if matchFound {
+            if prevMapName != curMapName {
+                sendMessages(curMapName)
+                if !existsMap(curMapName) {
+                    addMap(curMapName)
+                    if DEBUG {
+                        fmt.Printf("> New map %s added to the database.", curMapName)
+                    }
+                }
                 if DEBUG {
-                    fmt.Printf("> New map %s added to the database.", curMapName)
+                    if prevMapName != "Not Pinged Yet" {
+                        fmt.Printf("\n> IP %s has cycled, last ping for %s was %d.\n",server,prevMapName,prevDuration)
+                    } else {
+                        fmt.Printf("\n> Pinged %s for the first time.\n",server)
+                    }
                 }
             }
             if DEBUG {
-                if prevMapName != "Not Pinged Yet" {
-                    fmt.Printf("\n> IP %s has cycled, last ping for %s was %d.\n",server,prevMapName,prevDuration)
-                } else {
-                    fmt.Printf("\n> Pinged %s for the first time.\n",server)
-                }
+                fmt.Printf("\n> IP %s has been playing %s for %d seconds.\n",server,curMapName,curDuration)
+                printConsoleInput()
             }
+            newMatch := pgmMatch{mapName: curMapName, duration: curDuration}
+            pgmServers[server] = newMatch
+        } else {
+            fmt.Printf("Connection failed to %s; the server is offline or the IP is invalid.", server)
         }
-        if DEBUG {
-            fmt.Printf("\n> IP %s has been playing %s for %d seconds.\n",server,curMapName,curDuration)
-            printConsoleInput()
-        }
-        newMatch := pgmMatch{mapName: curMapName, duration: curDuration}
-        pgmServers[server] = newMatch
     }
 }
 
-func pollPGMServerByIP(curIP string) (mapName string, duration int) {
+func pollPGMServerByIP(curIP string) (matchFound bool, mapName string, duration int) {
     res, err := http.Get(API_LINK + curIP)
     defer res.Body.Close()
     if err != nil {
@@ -72,7 +76,7 @@ func pollPGMServerByIP(curIP string) (mapName string, duration int) {
         panic(err)
     }
 
-    matchFound := false
+    matchFound = false
     lookForMatch := 0
     mapName = "None Found"
     duration = -1
