@@ -28,7 +28,7 @@ func createBot() (*discordgo.Session){
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
     if DEBUG {
-        fmt.Printf("> Message received.\n",m.Content)
+        fmt.Printf("> Message received: %s\n",m.Content)
     }
 
     // Ignore messages sent by this bot.

@@ -60,7 +60,8 @@ func (pgmServers serverMap) pollPGMServers() {
             newMatch := pgmMatch{mapName: curMapName, duration: curDuration}
             pgmServers[server] = newMatch
         } else {
-            fmt.Printf("Connection failed to %s; the server is offline or the IP is invalid.", server)
+            fmt.Printf("Connection failed to %s; the server is offline or the IP is invalid.\n", server)
+            printConsoleInput()
         }
     }
 }
